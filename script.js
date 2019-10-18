@@ -8,12 +8,17 @@ var board; //represents the board
 var turn;  //hold current turn
 var humanPlayer; 
 var computerPlayer;
-var chosenPlayer; //human player at start of game
 var gameEnd; //store game termination 
 
-window.onload = function(){ //start game up as soon as page loads
-	chosenPlayer=xPlayer;
-    startGame();	  
+// window.onload = function(){ //start game up as soon as page loads
+// 	createChoosingMenu();  
+// }
+function createChoosingMenu(){
+	document.getElementById("choosingMenu").innerHTML=
+	`Choose either X or O to start game  
+	<button onClick="setPlayer(xPlayer)">X</button>
+    <button onClick="setPlayer(oPlayer)">O</button> 
+    `;
 }
 
 //create blank table at the start of a new game
@@ -36,29 +41,28 @@ function createTable(){
 
 function getWinner(lboard){
 	for (var i = 0; i <3; i++) {
-		if(lboard[i*3]!=openSpot &&lboard[i*3]===lboard[i*3+1] && lboard[i*3+1]===lboard[i*3+2]) //horizontal win
-			return lboard[i*3];			
-		if(lboard[i]!=openSpot && lboard[i]===lboard[i+3] && lboard[i+3]===lboard[i+6]) //vertical win
+		//horizontal win
+		if(lboard[i*3]!=openSpot &&lboard[i*3]===lboard[i*3+1] && lboard[i*3+1]===lboard[i*3+2]) 
+			return lboard[i*3];		
+		//vertical win	
+		if(lboard[i]!=openSpot && lboard[i]===lboard[i+3] && lboard[i+3]===lboard[i+6]) 
 			return lboard[i];
 	}
 	//diagonal win
 	if((lboard[4] !== openSpot) && (lboard[0]===lboard[4] && lboard[4]===lboard[8] || lboard[2]===lboard[4] && lboard[4]===lboard[6]))
-		return lboard[4]; //always win throguh middle
+		return lboard[4]; //diagonal always win through middle
 	return openSpot;
 }
 
-function startGame() {
+function createGame() {
 	createTable();	
 	turn =xPlayer; //x player always start
-	humanPlayer=chosenPlayer;
 	computerPlayer =(humanPlayer===oPlayer)?xPlayer:oPlayer;
 	document.getElementById("hint").innerHTML="";
 	gameEnd =false;
-	if(computerPlayer==xPlayer) //xplayer always goes first
-		computerMove();
 }
 
-//movement for the human side
+//Function handles the even where the human makes a move by clicking a tile
 function humanMove(boardNum){
 	if(gameEnd) //don't let player move after game ended
 		return;
@@ -112,10 +116,18 @@ function showWinner(winner){
 }
 
 function setPlayer(playerNum){ //choose your player
-	chosenPlayer=playerNum;
+	humanPlayer=playerNum;
+	//remove ability to choose and add ability to play and replay
+	document.getElementById("choosingMenu").innerHTML=`
+	<button onClick="createChoosingMenu()">Replay</button>
+	<div id='gameBoard'></div>	
+	<div id="hint"></div>`;
+	createGame();
+	if(computerPlayer==xPlayer) //player who is playing 'X' always goes first
+		computerMove();
 }
 
-//Use alpha-beta algorihm to determine winner of game
+//Use alpha-beta algorithm to determine winner of game
 function findBestMove(gameBoard, depth, playerNum,alpha, beta) {
 	var winner = getWinner(gameBoard)*30; 
 	if(winner !== openSpot)
